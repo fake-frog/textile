@@ -1,0 +1,37 @@
+#ifndef INCLUDE_H
+#define INCLUDE_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+
+#define MAX_SEQUENCE_SIZE 1024
+#define MAX_WEAVE_SIZE 1024
+
+typedef struct {
+  int x;
+  int y;
+} Point;
+
+typedef struct {
+  Point shuttle_pos;
+  int sequence_type; // 0 for weft 1 for warp
+  char *sequece;
+} Block;
+
+typedef struct {
+  Point curr_position_shuttle;
+  int curr_weave_index;
+  Block weave[MAX_WEAVE_SIZE];
+} Pattern;
+
+// utils
+
+void move_cursor(int row, int col);
+void clear_screen();
+void disable_raw_mode();
+void enable_raw_mode();
+void begin_textile(int (*process)(double));
+
+#endif
