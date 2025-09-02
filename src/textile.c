@@ -4,7 +4,19 @@
 #include <time.h>
 #define FPS 60
 
-void begin_textile(int (*process)()) {
+/* NOTE - ABOUT TEXTILE
+** =========================================================================
+** Textile is
+**
+**
+**
+**
+**
+**
+** =========================================================================
+*/
+
+void begin_textile(int (*process)(double)) {
   enable_raw_mode();
   clear_screen();
 
@@ -13,13 +25,11 @@ void begin_textile(int (*process)()) {
 
   long nano_target_frame_time = (long)(1.0 / FPS * 1000000000L); // nano seconds
   struct timespec tstart, tend, tsleep;
-  tsleep.tv_sec = 0; // we dont need this
-
+  tsleep.tv_sec = 0; // we dont use this
   long delta_time = 0;
 
   char c;
   while (1) {
-
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
     int bytes_read = read(STDIN_FILENO, &c, 1);
@@ -36,12 +46,9 @@ void begin_textile(int (*process)()) {
     }
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
-
     delta_time = (tend.tv_sec - tstart.tv_sec) * 1000000000L +
                  (tend.tv_nsec - tstart.tv_nsec);
-
     tsleep.tv_nsec = 0;
-
     if (delta_time < nano_target_frame_time) {
       tsleep.tv_nsec = nano_target_frame_time - delta_time;
     }
