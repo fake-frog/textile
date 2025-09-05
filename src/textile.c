@@ -6,16 +6,23 @@
 
 /* NOTE - ABOUT TEXTILE
 ** =========================================================================
-** Textile is
+** Textile is a minimal library for making terminal application. Define pat-
+** terns and tell textile how they should be stiched together. Textile works
+** in a simular way to tilling window manger.
 **
+** stitch_left(...)
+** ----
+** will stitch a pattern to the left of the most recelty defined pattern.
 **
+** stitch_left_all(...)
+** ----
+** will stich a pattern to the left of all of the current pattern.
 **
-**
-**
-**
+** and so on...
 ** =========================================================================
 */
 
+// Start renderloop
 void begin_textile(int (*process)(double)) {
   enable_raw_mode();
   clear_screen();
@@ -23,7 +30,9 @@ void begin_textile(int (*process)(double)) {
   int flags = fcntl(STDIN_FILENO, F_GETFL);
   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
-  long nano_target_frame_time = (long)(1.0 / FPS * 1000000000L); // nano seconds
+  long BILLION = 1000000000L;
+
+  long nano_target_frame_time = (long)(1.0 / FPS * BILLION); // nano seconds
   struct timespec tstart, tend, tsleep;
   tsleep.tv_sec = 0; // we dont use this
   long delta_time = 0;
@@ -37,25 +46,31 @@ void begin_textile(int (*process)(double)) {
     if (bytes_read == 1) {
       if (c == 'q') {
         printf("Quitting...\r\n");
+        // TODO - handle exit
         break;
       }
     }
 
-    if (process((double)(delta_time / 1000000000.0)) == 1) {
+    if (process(delta_time / (double)BILLION) == 1) {
+      // TODO - handle error
       break;
     }
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    delta_time = (tend.tv_sec - tstart.tv_sec) * 1000000000L +
-                 (tend.tv_nsec - tstart.tv_nsec);
+
     tsleep.tv_nsec = 0;
+    delta_time = (tend.tv_sec - tstart.tv_sec) * BILLION +
+                 (tend.tv_nsec - tstart.tv_nsec);
+
     if (delta_time < nano_target_frame_time) {
       tsleep.tv_nsec = nano_target_frame_time - delta_time;
+      delta_time = nano_target_frame_time; // trust the sleep time
     }
 
     nanosleep(&tsleep, NULL);
   }
 }
+
 
 void append_block(Pattern *pattern, Block block) {
   // TODO check if curr_block_index is larger than max size
