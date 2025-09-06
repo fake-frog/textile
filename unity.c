@@ -1,3 +1,5 @@
 #include "src/main.c"
+#include "src/map.c"
+#include "src/render.c"
 #include "src/term_utils.c"
 #include "src/textile.c"

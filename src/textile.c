@@ -1,5 +1,4 @@
 #include "include.h"
-#include <bits/time.h>
 #include <fcntl.h>
 #include <time.h>
 #define FPS 60
@@ -19,6 +18,13 @@
 ** will stich a pattern to the left of all of the current pattern.
 **
 ** and so on...
+**
+** textile will handle 3 things
+**
+** 1. rendering text frame by frame
+** 2. window focus and interaction
+** 3. tiling and window overflow
+**
 ** =========================================================================
 */
 
@@ -26,6 +32,7 @@
 void begin_textile(int (*process)(double)) {
   enable_raw_mode();
   clear_screen();
+  fflush(stdout);
 
   int flags = fcntl(STDIN_FILENO, F_GETFL);
   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
@@ -51,7 +58,9 @@ void begin_textile(int (*process)(double)) {
       }
     }
 
-    if (process(delta_time / (double)BILLION) == 1) {
+    int ERROR = process(delta_time / (double)BILLION);
+    fflush(stdout); // see the output
+    if (ERROR) {
       // TODO - handle error
       break;
     }
@@ -71,25 +80,17 @@ void begin_textile(int (*process)(double)) {
   }
 }
 
+// The needle will exicute the given stich command
+// on the location on hte patterns sequnce
+void sow(Needle needle, char *sequene, Pattern *pattern) {}
 
-void append_block(Pattern *pattern, Block block) {
-  // TODO check if curr_block_index is larger than max size
-  pattern->weave[pattern->curr_weave_index] = block;
-  pattern->curr_weave_index++;
-}
+void register_patten(Textile *textile, Pattern *pattern) {
+  insert_pattern(&textile->patternMap, pattern->name, *pattern);
+};
 
-// weft is horizontal
-void sequence_weft(Pattern *pattern, char sequece[MAX_SEQUENCE_SIZE]) {
-  Block block = {.shuttle_pos = pattern->curr_position_shuttle,
-                 .sequence_type = 0,
-                 .sequece = sequece};
-  append_block(pattern, block);
-}
-
-typedef enum { LEFT, RIGHT, UP, DOWN } Direction;
-
-void stitch(Pattern *active_pattern, Pattern *new_pattern,
-            Direction direction) {
+// putes patterns together
+void stitch_to(Textile textile, char *pattern1_name, char *pattern2_name,
+               Direction direction) {
 
   switch (direction) {
   case LEFT:
@@ -106,32 +107,3 @@ void stitch(Pattern *active_pattern, Pattern *new_pattern,
     break;
   }
 }
-
-/*
-TODO
-
-Heres the idea
-
-struct
-
-Textile textile = {0};
-Pattern pattern = {0};
-
-sequence_weft(pattern, "*-->");
-sequence_warp(pattern, "-->");
-sequence_weft(pattern, "[b]"); // this is a button maybe?
-
-weft - horizontal
-warp - vertical
-
-equals
-
-*-->
-|[b]
-|
-∨
-
-pattern_register("pattern name", pattern, textile);
-
-
-*/

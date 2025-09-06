@@ -6,14 +6,10 @@ struct termios orig_termios;
 void move_cursor(int row, int col) {
   // negative number set bolth x and y to 0
   printf("\033[%d;%dH", row, col);
-  fflush(stdout);
 }
 
 // Clear screen and move to top-left
-void clear_screen() {
-  printf("\033[2J\033[H");
-  fflush(stdout);
-}
+void clear_screen() { printf("\033[2J\033[H"); }
 
 void disable_raw_mode() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios); }
 
@@ -32,4 +28,7 @@ void enable_raw_mode() {
   raw.c_cc[VTIME] = 1;
 
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+  // full buffering (\n wont triger flush)
+  setvbuf(stdout, NULL, _IOFBF, 4096);
 }

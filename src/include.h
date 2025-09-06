@@ -7,31 +7,68 @@
 #include <unistd.h>
 
 #define MAX_SEQUENCE_SIZE 1024
-#define MAX_WEAVE_SIZE 1024
+#define MAX_PATTERN_LENGTH 1024
+#define MAX_MAP_KEY_LENGTH 1024
+#define MAX_MAP_KEY_SIZE 100
+
+/*
+** ===============================
+**
+** LIB ITEMS - for users
+**
+** ===============================
+*/
+
+typedef enum { CHAR, WORD, LINE } Stich;
+typedef enum { OVERFLOW, BREAK_WORD, BREAK_CHAR } Warp;
+typedef enum { LEFT, RIGHT, UP, DOWN } Direction;
 
 typedef struct {
-  int x;
-  int y;
-} Point;
+  int x1;
+  int y1;
+  Stich stich;
+} Needle;
 
+// add wrapping modes
 typedef struct {
-  Point shuttle_pos;
-  int sequence_type; // 0 for weft 1 for warp
-  char *sequece;
-} Block;
-
-typedef struct {
-  Point curr_position_shuttle;
-  int curr_weave_index;
-  Block weave[MAX_WEAVE_SIZE];
+  char name[MAX_MAP_KEY_SIZE];
+  char sequene[MAX_SEQUENCE_SIZE];
 } Pattern;
 
-// utils
+typedef struct {
+  char keys[MAX_MAP_KEY_LENGTH][MAX_MAP_KEY_SIZE];
+  Pattern patterns[MAX_PATTERN_LENGTH];
+  int length;
+} PatternMap;
 
+int get_index(PatternMap map, char key[]);
+// returns 1 if you overflow
+int insert_pattern(PatternMap *map, char key[], Pattern);
+Pattern *get_pattern(PatternMap *map, char *key);
+Pattern *get_pattern(PatternMap *map, char *key);
+
+typedef struct {
+  PatternMap patternMap;
+  int active_window;
+} Textile;
+
+void register_patten(Textile *textile, Pattern *pattern);
+
+/*
+** ===============================
+**
+** INERNAL - not to be exposed
+**
+** ===============================
+*/
+
+// term utils
 void move_cursor(int row, int col);
 void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
 void begin_textile(int (*process)(double));
 
+// renderer
+void render_pattern(PatternMap *map, char *name);
 #endif
