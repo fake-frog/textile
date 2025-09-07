@@ -3,9 +3,9 @@
 struct termios orig_termios;
 
 // Move cursor to row, col (1-indexed)
-void move_cursor(int row, int col) {
-  // negative number set bolth x and y to 0
-  printf("\033[%d;%dH", row, col);
+void move_cursor(int x, int y) {
+  // negative number set both x and y to 0
+  printf("\033[%d;%dH", y, x);
 }
 
 // Clear screen and move to top-left

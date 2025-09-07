@@ -19,13 +19,22 @@
 ** ===============================
 */
 
-typedef enum { CHAR, WORD, LINE } Stich;
+// stitch were place characters
+// its where we begin writing and
+// how we proceed.
+typedef enum {
+  CHAR,
+  WORD,
+  LINE,
+  MARK,
+} Stich;
+
 typedef enum { OVERFLOW, BREAK_WORD, BREAK_CHAR } Warp;
 typedef enum { LEFT, RIGHT, UP, DOWN } Direction;
 
 typedef struct {
-  int x1;
-  int y1;
+  int x;
+  int y;
   Stich stich;
 } Needle;
 
@@ -33,6 +42,7 @@ typedef struct {
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
   char sequene[MAX_SEQUENCE_SIZE];
+  Needle needle;
 } Pattern;
 
 typedef struct {
@@ -53,6 +63,7 @@ typedef struct {
 } Textile;
 
 void register_patten(Textile *textile, Pattern *pattern);
+void sow(char *string, Pattern *pattern);
 
 /*
 ** ===============================
@@ -62,8 +73,12 @@ void register_patten(Textile *textile, Pattern *pattern);
 ** ===============================
 */
 
+// needle actions
+void sow_char(Needle *needle, char *string);
+void sow_word(Needle *needle, char *string);
+void sow_line(Needle *needle, char *string);
 // term utils
-void move_cursor(int row, int col);
+void move_cursor(int x, int y);
 void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();

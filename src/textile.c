@@ -82,11 +82,25 @@ void begin_textile(int (*process)(double)) {
 
 // The needle will exicute the given stich command
 // on the location on hte patterns sequnce
-void sow(Needle needle, char *sequene, Pattern *pattern) {}
+void sow(char *string, Pattern *pattern) {
+  switch (pattern->needle.stich) {
+  case CHAR:
+    sow_char(&pattern->needle, string);
+    break;
+  case WORD:
+    sow_word(&pattern->needle, string);
+    break;
+  case LINE:
+    sow_line(&pattern->needle, string);
+    break;
+  case MARK:
+    break;
+  }
+}
 
 void register_patten(Textile *textile, Pattern *pattern) {
   insert_pattern(&textile->patternMap, pattern->name, *pattern);
-};
+}
 
 // putes patterns together
 void stitch_to(Textile textile, char *pattern1_name, char *pattern2_name,
