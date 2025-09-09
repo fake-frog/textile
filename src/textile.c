@@ -1,6 +1,5 @@
 #include "include.h"
-#include <fcntl.h>
-#include <time.h>
+
 #define FPS 60
 
 /* NOTE - ABOUT TEXTILE
@@ -84,6 +83,9 @@ void begin_textile(int (*process)(double)) {
 // on the location on hte patterns sequnce
 void sow(char *string, Pattern *pattern) {
   switch (pattern->needle.stich) {
+  case POINT:
+    sow_point(&pattern->needle, string);
+    break;
   case CHAR:
     sow_char(&pattern->needle, string);
     break;

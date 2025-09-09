@@ -15,24 +15,23 @@ int process(double delta_time) {
 
   register_patten(&textile, &pattern);
 
-
   pattern.needle.x = 1;
   pattern.needle.y = 1;
 
-  pattern.needle.stich = CHAR;
-  sow("C", &pattern);
-
-  pattern.needle.stich = WORD;
-  sow("WORD", &pattern);
-  sow("WORD", &pattern);
-  sow("WORD", &pattern);
-  sow("WORD", &pattern);
+  window_size ws = get_window_size();
 
   pattern.needle.stich = LINE;
-  sow("THIS IS A LINE", &pattern);
 
-  pattern.needle.stich = WORD;
-  sow("WORD", &pattern);
+  char message[128];
+
+  sprintf(message, "char x -> %d", ws.char_x);
+  sow(message, &pattern);
+  sprintf(message, "char y -> %d", ws.char_y);
+  sow(message, &pattern);
+  sprintf(message, "pixel x -> %d", ws.pixel_x);
+  sow(message, &pattern);
+  sprintf(message, "pixel y -> %d", ws.pixel_y);
+  sow(message, &pattern);
 
   return 0;
 }

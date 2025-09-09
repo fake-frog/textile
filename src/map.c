@@ -1,6 +1,4 @@
 #include "include.h"
-#include <stdio.h>
-#include <string.h>
 
 int get_index(PatternMap map, char key[]) {
 

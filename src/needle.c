@@ -1,6 +1,4 @@
 #include "include.h"
-#include <stdio.h>
-#include <string.h>
 
 // maybe we will append the sequence to the
 // pattern then printf to keep track of the
@@ -8,6 +6,13 @@
 
 // we will probably need to set the x and y
 // relative to the patterns position
+
+void sow_point(Needle *needle, char *string) {
+  // append to pattern here
+  printf("%s", string);
+  move_cursor(needle->x, needle->y);
+}
+
 void sow_char(Needle *needle, char *string) {
   // append to pattern here
   printf("%s", string);

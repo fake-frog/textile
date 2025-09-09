@@ -1,4 +1,5 @@
 #include "include.h"
+#include <sys/ioctl.h>
 
 struct termios orig_termios;
 
@@ -31,4 +32,11 @@ void enable_raw_mode() {
 
   // full buffering (\n wont triger flush)
   setvbuf(stdout, NULL, _IOFBF, 4096);
+}
+
+window_size get_window_size() {
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  window_size ws = {w.ws_col, w.ws_row, w.ws_xpixel, w.ws_ypixel};
+  return ws;
 }

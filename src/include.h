@@ -1,9 +1,13 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 #define MAX_SEQUENCE_SIZE 1024
@@ -23,6 +27,7 @@
 // its where we begin writing and
 // how we proceed.
 typedef enum {
+  POINT,
   CHAR,
   WORD,
   LINE,
@@ -74,15 +79,25 @@ void sow(char *string, Pattern *pattern);
 */
 
 // needle actions
+void sow_point(Needle *needle, char *string);
 void sow_char(Needle *needle, char *string);
 void sow_word(Needle *needle, char *string);
 void sow_line(Needle *needle, char *string);
 // term utils
+
+typedef struct {
+  unsigned int char_x;
+  unsigned int char_y;
+  unsigned int pixel_x; // not always reported by terminal
+  unsigned int pixel_y; // not always reported by terminal
+} window_size;
+
 void move_cursor(int x, int y);
 void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
 void begin_textile(int (*process)(double));
+window_size get_window_size();
 
 // renderer
 void render_pattern(PatternMap *map, char *name);
