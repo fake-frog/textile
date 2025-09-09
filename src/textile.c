@@ -6,7 +6,7 @@
 ** =========================================================================
 ** Textile is a minimal library for making terminal application. Define pat-
 ** terns and tell textile how they should be stiched together. Textile works
-** in a simular way to tilling window manger.
+** i~n a similar way to tilling window mangers.
 **
 ** stitch_left(...)
 ** ----
