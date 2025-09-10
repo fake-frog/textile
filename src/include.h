@@ -18,7 +18,7 @@
 /*
 ** ===============================
 **
-** LIB ITEMS - for users
+** API ITEMS - for users
 **
 ** ===============================
 */
@@ -96,7 +96,9 @@ void move_cursor(int x, int y);
 void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
+void switch_to_back_buffer();
 void begin_textile(int (*process)(double));
+void switch_to_main_buffer();
 window_size get_window_size();
 
 // renderer

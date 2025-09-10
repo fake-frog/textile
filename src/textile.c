@@ -6,7 +6,7 @@
 ** =========================================================================
 ** Textile is a minimal library for making terminal application. Define pat-
 ** terns and tell textile how they should be stiched together. Textile works
-** i~n a similar way to tilling window mangers.
+** in a similar way to tilling window mangers.
 **
 ** stitch_left(...)
 ** ----
@@ -30,8 +30,9 @@
 // Start renderloop
 void begin_textile(int (*process)(double)) {
   enable_raw_mode();
-  clear_screen();
+
   fflush(stdout);
+  clear_screen();
 
   int flags = fcntl(STDIN_FILENO, F_GETFL);
   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
@@ -51,8 +52,8 @@ void begin_textile(int (*process)(double)) {
 
     if (bytes_read == 1) {
       if (c == 'q') {
-        printf("Quitting...\r\n");
-        // TODO - handle exit
+        // printf("Quitting...\r\n");
+        //  TODO - handle exit
         break;
       }
     }

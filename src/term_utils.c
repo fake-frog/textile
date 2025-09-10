@@ -1,5 +1,4 @@
 #include "include.h"
-#include <sys/ioctl.h>
 
 struct termios orig_termios;
 
@@ -9,12 +8,18 @@ void move_cursor(int x, int y) {
   printf("\033[%d;%dH", y, x);
 }
 
+void switch_to_back_buffer() { printf("\033[?1049h"); }
+void switch_to_main_buffer() { printf("\033[?1049l"); }
 // Clear screen and move to top-left
 void clear_screen() { printf("\033[2J\033[H"); }
 
-void disable_raw_mode() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios); }
+void disable_raw_mode() {
+  switch_to_main_buffer();
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
 
 void enable_raw_mode() {
+  switch_to_back_buffer();
   tcgetattr(STDIN_FILENO, &orig_termios);
   atexit(disable_raw_mode);
 
