@@ -46,7 +46,8 @@ typedef struct {
 // add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
-  char sequene[MAX_SEQUENCE_SIZE];
+  char sequence[MAX_SEQUENCE_SIZE];
+  int sequence_pos;
   Needle needle;
 } Pattern;
 
@@ -78,6 +79,9 @@ void sow(char *string, Pattern *pattern);
 ** ===============================
 */
 
+// sequence
+void reset_sequence(Pattern *pattern);
+
 // needle actions
 void sow_point(Needle *needle, char *string);
 void sow_char(Needle *needle, char *string);
@@ -101,6 +105,4 @@ void begin_textile(int (*process)(double));
 void switch_to_main_buffer();
 window_size get_window_size();
 
-// renderer
-void render_pattern(PatternMap *map, char *name);
 #endif

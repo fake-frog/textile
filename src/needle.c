@@ -25,9 +25,11 @@ void sow_word(Needle *needle, char *string) {
 }
 
 void sow_line(Needle *needle, char *string) {
-  move_cursor(1, ++needle->y); // move to new line
+  // move to new line if we are not at the begining
+  if (needle->x > 1)
+    move_cursor(1, ++needle->y);
   printf("%s", string);
-  move_cursor(needle->x = (strlen(string) + 2), needle->y);
+  move_cursor(1, ++needle->y);
 }
 
 // this onese a bit more complicated

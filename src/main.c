@@ -1,4 +1,5 @@
 #include "include.h"
+#include <stdio.h>
 
 int process(double delta_time) {
   clear_screen();
@@ -10,8 +11,8 @@ int process(double delta_time) {
   Pattern pattern = {
       .needle = {1, 1, LINE}, // the terminal starts at 1,1 for some reason
       .name = "TEST PATTERN",
-      .sequene = "TEST SEQUENE FOR TEST PATTERN",
-  };
+      .sequence = "TEST SEQUENE FOR TEST PATTERN",
+      .sequence_pos = 0};
 
   register_patten(&textile, &pattern);
 
@@ -26,12 +27,16 @@ int process(double delta_time) {
 
   sprintf(message, "char x -> %d", ws.char_x);
   sow(message, &pattern);
+  pattern.needle.stich = WORD;
   sprintf(message, "char y -> %d", ws.char_y);
   sow(message, &pattern);
   sprintf(message, "pixel x -> %d", ws.pixel_x);
   sow(message, &pattern);
+  pattern.needle.stich = LINE;
   sprintf(message, "pixel y -> %d", ws.pixel_y);
   sow(message, &pattern);
+
+  printf("%s", pattern.sequence);
 
   return 0;
 }
