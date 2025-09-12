@@ -30,8 +30,6 @@ typedef enum {
   POINT,
   CHAR,
   WORD,
-  LINE,
-  MARK,
 } Stich;
 
 typedef enum { OVERFLOW, BREAK_WORD, BREAK_CHAR } Warp;
@@ -46,8 +44,8 @@ typedef struct {
 // add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
-  char sequence[MAX_SEQUENCE_SIZE];
-  int sequence_pos;
+  int x;
+  int y;
   Needle needle;
 } Pattern;
 
@@ -86,7 +84,8 @@ void reset_sequence(Pattern *pattern);
 void sow_point(Needle *needle, char *string);
 void sow_char(Needle *needle, char *string);
 void sow_word(Needle *needle, char *string);
-void sow_line(Needle *needle, char *string);
+void move_needle(Needle *needle, int x, int y);
+void return_needle(Needle *needle);
 // term utils
 
 typedef struct {

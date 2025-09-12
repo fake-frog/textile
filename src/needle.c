@@ -7,34 +7,24 @@
 // we will probably need to set the x and y
 // relative to the patterns position
 
-void sow_point(Needle *needle, char *string) {
-  // append to pattern here
-  printf("%s", string);
-  move_cursor(needle->x, needle->y);
-}
+void sow_point(Needle *needle, char *string) { printf("%s", string); }
 
 void sow_char(Needle *needle, char *string) {
-  // append to pattern here
   printf("%s", string);
-  move_cursor(++needle->x, needle->y);
+  needle->x++;
 }
 
 void sow_word(Needle *needle, char *string) {
   printf("%s", string);
-  move_cursor(needle->x += (strlen(string) + 1), needle->y);
+  needle->x += (strlen(string) + 1);
 }
 
-void sow_line(Needle *needle, char *string) {
-  // move to new line if we are not at the begining
-  if (needle->x > 1)
-    move_cursor(1, ++needle->y);
-  printf("%s", string);
-  move_cursor(1, ++needle->y);
+void move_needle(Needle *needle, int x, int y) {
+  needle->x = x;
+  needle->y = y;
 }
 
-// this onese a bit more complicated
-// need to search for certain symbole
-// in the squence
-void find_mark(Needle *needle) {}
-
-void sow_mark(Needle needle, char *string) {}
+void return_needle(Needle *needle) {
+  needle->x = 1;
+  needle->y++;
+}

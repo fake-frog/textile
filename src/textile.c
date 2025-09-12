@@ -3,6 +3,10 @@
 
 #define FPS 60
 
+#define SOW_WITH_CURSOR(sow_func, needle, string, offset_x, offset_y)          \
+  (move_cursor((needle)->x + offset_x, (needle)->y + (offset_y)),              \
+   sow_func(needle, string))
+
 /* NOTE - ABOUT TEXTILE
 ** =========================================================================
 ** Textile is a minimal library for making terminal application. Define pat-
@@ -80,43 +84,19 @@ void begin_textile(int (*process)(double)) {
   }
 }
 
-void reset_sequence(Pattern *pattern) { pattern->sequence[0] = '\n'; }
-
-static void capture_string(char *string, char *leading_char,
-                           char *trailing_char, Pattern *pattern) {
-  if (strlen(pattern->sequence) + strlen(string) >= MAX_SEQUENCE_SIZE)
-    return;
-
-  char old_sequence[MAX_SEQUENCE_SIZE];
-  strcpy(old_sequence, pattern->sequence);
-  snprintf(pattern->sequence, sizeof(pattern->sequence), "%s%s%s%s",
-           leading_char, old_sequence, string, trailing_char);
-}
-
 // The needle will exicute the given stich command
 // on the location on hte patterns sequnce
 void sow(char *string, Pattern *pattern) {
   switch (pattern->needle.stich) {
   case POINT:
-    sow_point(&pattern->needle, string);
-    // TODO need some sort of replace at string function
+    SOW_WITH_CURSOR(sow_point, &pattern->needle, string, pattern->x,
+                    pattern->y);
     break;
   case CHAR:
-    sow_char(&pattern->needle, string);
-    capture_string(string, "", "", pattern);
+    SOW_WITH_CURSOR(sow_char, &pattern->needle, string, pattern->x, pattern->y);
     break;
   case WORD:
-    sow_word(&pattern->needle, string);
-    capture_string(string, "", " ", pattern);
-    break;
-  case LINE:
-    sow_line(&pattern->needle, string);
-    char *leading_char = pattern->needle.x > 1 ? "\n" : "";
-    capture_string(string, leading_char, "\n", pattern);
-    break;
-  case MARK:
-    // This is going to be a weird one to capture
-    // have to find the squence char pos of the mark
+    SOW_WITH_CURSOR(sow_word, &pattern->needle, string, pattern->x, pattern->y);
     break;
   }
 }
