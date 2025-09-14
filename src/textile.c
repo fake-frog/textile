@@ -97,7 +97,7 @@ void sow(char *string, Pattern *pattern) {
   }
 }
 
-void register_patten(Textile *textile, Pattern *pattern) {
+void register_pattern(Textile *textile, Pattern *pattern) {
   insert_pattern(&textile->pattern_map, pattern->name, *pattern);
 }
 

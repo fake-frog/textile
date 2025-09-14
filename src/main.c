@@ -48,7 +48,7 @@ int main() {
       .x = 30,
       .y = 20};
 
-  register_patten(&textile, &pattern);
+  register_pattern(&textile, &pattern);
 
   pattern.needle.x = 1;
   pattern.needle.y = 1;

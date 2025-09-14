@@ -66,7 +66,7 @@ typedef struct {
   int active_pattern;
 } Textile;
 
-void register_patten(Textile *textile, Pattern *pattern);
+void register_pattern(Textile *textile, Pattern *pattern);
 Pattern *grab_pattern(Textile *textile, char *name);
 void sow(char *string, Pattern *pattern);
 
