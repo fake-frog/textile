@@ -1,6 +1,6 @@
 #include "include.h"
 
-int get_index(PatternMap map, char key[]) {
+int get_index(PatternMap map, const char *key) {
   for (int i = 0; i < map.length; i++) {
     if (strlen(key) <= MAX_MAP_KEY_LENGTH && strcmp(map.keys[i], key) == 0) {
       return i;
@@ -9,7 +9,7 @@ int get_index(PatternMap map, char key[]) {
   return -1;
 }
 
-int insert_value(PatternMap *map, char key[], Pattern pattern) {
+int insert_value(PatternMap *map, const char *key, Pattern pattern) {
   int index = get_index(*map, key);
   if (index < 0) {
     if (map->length >= MAX_PATTERN_LENGTH) {

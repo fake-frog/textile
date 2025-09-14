@@ -30,7 +30,7 @@
    sow_func(needle, string))
 
 // Start renderloop
-void begin_textile(int (*process)(double, Textile), Textile textile) {
+void begin_textile(int (*process)(double, Textile *), Textile *textile) {
   enable_raw_mode();
   fflush(stdout);
   clear_screen();
@@ -97,8 +97,13 @@ void sow(char *string, Pattern *pattern) {
   }
 }
 
-void register_pattern(Textile *textile, Pattern *pattern) {
-  insert_value(&textile->pattern_map, pattern->name, *pattern);
+void register_pattern(Textile *textile, const char *name) {
+  Pattern pattern = {
+      .needle = {1, 1, WORD}, // the terminal starts at 1,1 for some reason
+      .x = 0,
+      .y = 0};
+  strcpy(pattern.name, name);
+  insert_value(&textile->pattern_map, pattern.name, pattern);
 }
 
 Pattern *get_pattern(Textile *textile, char *name) {

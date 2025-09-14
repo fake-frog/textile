@@ -28,3 +28,8 @@ void return_needle(Needle *needle) {
   needle->x = 1;
   needle->y++;
 }
+
+void reset_needle(Needle *needle) {
+  needle->x = 1;
+  needle->y = 1;
+}

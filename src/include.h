@@ -55,9 +55,9 @@ typedef struct {
   int length;
 } PatternMap;
 
-int get_index(PatternMap map, char key[]);
+int get_index(PatternMap map, const char *key);
 // returns 1 if you overflow
-int insert_value(PatternMap *map, char key[], Pattern);
+int insert_value(PatternMap *map, const char *key, Pattern);
 Pattern *get_value(PatternMap *map, char *key);
 
 typedef struct {
@@ -65,7 +65,7 @@ typedef struct {
   int active_pattern;
 } Textile;
 
-void register_pattern(Textile *textile, Pattern *pattern);
+void register_pattern(Textile *textile, const char *name);
 Pattern *get_pattern(Textile *textile, char *name);
 void sow(char *string, Pattern *pattern);
 
@@ -86,6 +86,7 @@ void sow_char(Needle *needle, char *string);
 void sow_word(Needle *needle, char *string);
 void move_needle(Needle *needle, int x, int y);
 void return_needle(Needle *needle);
+void reset_needle(Needle *needle);
 // term utils
 
 typedef struct {
@@ -100,7 +101,7 @@ void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
 void switch_to_back_buffer();
-void begin_textile(int (*process)(double, Textile), Textile textile);
+void begin_textile(int (*process)(double, Textile *), Textile *textile);
 void switch_to_main_buffer();
 window_size get_window_size();
 
