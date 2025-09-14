@@ -57,9 +57,8 @@ typedef struct {
 
 int get_index(PatternMap map, char key[]);
 // returns 1 if you overflow
-int insert_pattern(PatternMap *map, char key[], Pattern);
-Pattern *get_pattern(PatternMap *map, char *key);
-Pattern *get_pattern(PatternMap *map, char *key);
+int insert_value(PatternMap *map, char key[], Pattern);
+Pattern *get_value(PatternMap *map, char *key);
 
 typedef struct {
   PatternMap pattern_map;
@@ -67,7 +66,7 @@ typedef struct {
 } Textile;
 
 void register_pattern(Textile *textile, Pattern *pattern);
-Pattern *grab_pattern(Textile *textile, char *name);
+Pattern *get_pattern(Textile *textile, char *name);
 void sow(char *string, Pattern *pattern);
 
 /*

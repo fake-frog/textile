@@ -98,11 +98,11 @@ void sow(char *string, Pattern *pattern) {
 }
 
 void register_pattern(Textile *textile, Pattern *pattern) {
-  insert_pattern(&textile->pattern_map, pattern->name, *pattern);
+  insert_value(&textile->pattern_map, pattern->name, *pattern);
 }
 
-Pattern *grab_pattern(Textile *textile, char *name) {
-  Pattern *pattern = get_pattern(&textile->pattern_map, name);
+Pattern *get_pattern(Textile *textile, char *name) {
+  Pattern *pattern = get_value(&textile->pattern_map, name);
   return pattern ? pattern : NULL;
 }
 

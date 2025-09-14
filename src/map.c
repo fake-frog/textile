@@ -9,7 +9,7 @@ int get_index(PatternMap map, char key[]) {
   return -1;
 }
 
-int insert_pattern(PatternMap *map, char key[], Pattern pattern) {
+int insert_value(PatternMap *map, char key[], Pattern pattern) {
   int index = get_index(*map, key);
   if (index < 0) {
     if (map->length >= MAX_PATTERN_LENGTH) {
@@ -22,7 +22,7 @@ int insert_pattern(PatternMap *map, char key[], Pattern pattern) {
   return 0;
 }
 
-Pattern *get_pattern(PatternMap *map, char *key) {
+Pattern *get_value(PatternMap *map, char *key) {
   int index = get_index(*map, key);
   return (index >= 0) ? &map->patterns[index] : NULL;
 }
