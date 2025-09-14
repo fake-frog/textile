@@ -1,12 +1,3 @@
-#include "include.h"
-#include <string.h>
-
-#define FPS 60
-
-#define SOW_WITH_CURSOR(sow_func, needle, string, offset_x, offset_y)          \
-  (move_cursor((needle)->x + offset_x, (needle)->y + (offset_y)),              \
-   sow_func(needle, string))
-
 /* NOTE - ABOUT TEXTILE
 ** =========================================================================
 ** Textile is a minimal library for making terminal application. Define pat-
@@ -32,8 +23,14 @@
 ** =========================================================================
 */
 
+#include "include.h"
+#define FPS 60
+#define SOW_WITH_CURSOR(sow_func, needle, string, offset_x, offset_y)          \
+  (move_cursor((needle)->x + offset_x, (needle)->y + (offset_y)),              \
+   sow_func(needle, string))
+
 // Start renderloop
-void begin_textile(int (*process)(double)) {
+void begin_textile(int (*process)(double, Textile), Textile textile) {
   enable_raw_mode();
   fflush(stdout);
   clear_screen();
@@ -62,12 +59,11 @@ void begin_textile(int (*process)(double)) {
       }
     }
 
-    int ERROR = process(delta_time / (double)BILLION);
-    fflush(stdout); // see the output
+    int ERROR = process(delta_time / (double)BILLION, textile);
     if (ERROR) {
-      // TODO - handle error
-      break;
+      printf("ERROR IN: process\r\n");
     }
+    fflush(stdout); // see the output
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
 
@@ -102,7 +98,12 @@ void sow(char *string, Pattern *pattern) {
 }
 
 void register_patten(Textile *textile, Pattern *pattern) {
-  insert_pattern(&textile->patternMap, pattern->name, *pattern);
+  insert_pattern(&textile->pattern_map, pattern->name, *pattern);
+}
+
+Pattern *grab_pattern(Textile *textile, char *name) {
+  Pattern *pattern = get_pattern(&textile->pattern_map, name);
+  return pattern ? pattern : NULL;
 }
 
 // putes patterns together

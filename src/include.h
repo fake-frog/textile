@@ -62,11 +62,12 @@ Pattern *get_pattern(PatternMap *map, char *key);
 Pattern *get_pattern(PatternMap *map, char *key);
 
 typedef struct {
-  PatternMap patternMap;
-  int active_window;
+  PatternMap pattern_map;
+  int active_pattern;
 } Textile;
 
 void register_patten(Textile *textile, Pattern *pattern);
+Pattern *grab_pattern(Textile *textile, char *name);
 void sow(char *string, Pattern *pattern);
 
 /*
@@ -100,7 +101,7 @@ void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
 void switch_to_back_buffer();
-void begin_textile(int (*process)(double));
+void begin_textile(int (*process)(double, Textile), Textile textile);
 void switch_to_main_buffer();
 window_size get_window_size();
 
