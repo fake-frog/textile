@@ -7,16 +7,16 @@
 // we will probably need to set the x and y
 // relative to the patterns position
 
-void sow_point(Needle *needle, char *string) { printf("%s", string); }
+void sow_point(Needle *needle, char *stich) { printf("%s", stich); }
 
-void sow_char(Needle *needle, char *string) {
-  printf("%s", string);
+void sow_char(Needle *needle, char *stich) {
+  printf("%s", stich);
   needle->x++;
 }
 
-void sow_word(Needle *needle, char *string) {
-  printf("%s", string);
-  needle->x += (strlen(string) + 1);
+void sow_word(Needle *needle, char *stich) {
+  printf("%s", stich);
+  needle->x += (strlen(stich) + 1);
 }
 
 void move_needle(Needle *needle, int x, int y) {
@@ -33,3 +33,5 @@ void reset_needle(Needle *needle) {
   needle->x = 1;
   needle->y = 1;
 }
+
+void cut_stich(char *stich, int end) {}

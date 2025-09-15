@@ -39,9 +39,9 @@ void enable_raw_mode() {
   setvbuf(stdout, NULL, _IOFBF, 4096);
 }
 
-window_size get_window_size() {
+WindowSize get_window_size() {
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-  window_size ws = {w.ws_col, w.ws_row, w.ws_xpixel, w.ws_ypixel};
+  WindowSize ws = {w.ws_col, w.ws_row, w.ws_xpixel, w.ws_ypixel};
   return ws;
 }

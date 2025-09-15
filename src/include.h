@@ -32,7 +32,7 @@ typedef enum {
   WORD,
 } Stich;
 
-typedef enum { OVERFLOW, BREAK_WORD, BREAK_CHAR } Warp;
+typedef enum { HIDE, BREAK_WORD, BREAK_CHAR } Overflow;
 typedef enum { LEFT, RIGHT, UP, DOWN } Direction;
 
 typedef struct {
@@ -44,9 +44,12 @@ typedef struct {
 // add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
+  Needle needle;
+  int order;
   int x;
   int y;
-  Needle needle;
+  int width;
+  int height;
 } Pattern;
 
 typedef struct {
@@ -62,12 +65,15 @@ Pattern *get_value(PatternMap *map, char *key);
 
 typedef struct {
   PatternMap pattern_map;
-  int active_pattern;
+  char active_patterns[MAX_MAP_KEY_LENGTH][MAX_SEQUENCE_SIZE];
+  int active_pattern_length;
 } Textile;
 
 void register_pattern(Textile *textile, const char *name);
+void update_pattern_size(Textile *textile);
 Pattern *get_pattern(Textile *textile, char *name);
-void sow(char *string, Pattern *pattern);
+int is_pattern_active(Textile *textile, char *pattern_name);
+void sow(Textile *textile, char *stich, char *pattern_name);
 
 /*
 ** ===============================
@@ -81,9 +87,9 @@ void sow(char *string, Pattern *pattern);
 void reset_sequence(Pattern *pattern);
 
 // needle actions
-void sow_point(Needle *needle, char *string);
-void sow_char(Needle *needle, char *string);
-void sow_word(Needle *needle, char *string);
+void sow_point(Needle *needle, char *stich);
+void sow_char(Needle *needle, char *stich);
+void sow_word(Needle *needle, char *stich);
 void move_needle(Needle *needle, int x, int y);
 void return_needle(Needle *needle);
 void reset_needle(Needle *needle);
@@ -94,7 +100,7 @@ typedef struct {
   unsigned int char_y;
   unsigned int pixel_x; // not always reported by terminal
   unsigned int pixel_y; // not always reported by terminal
-} window_size;
+} WindowSize;
 
 void move_cursor(int x, int y);
 void clear_screen();
@@ -103,6 +109,6 @@ void enable_raw_mode();
 void switch_to_back_buffer();
 void begin_textile(int (*process)(double, Textile *), Textile *textile);
 void switch_to_main_buffer();
-window_size get_window_size();
+WindowSize get_window_size();
 
 #endif

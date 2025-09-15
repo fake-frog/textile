@@ -35,6 +35,7 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
   fflush(stdout);
   clear_screen();
 
+  // make the input nonblocking
   int flags = fcntl(STDIN_FILENO, F_GETFL);
   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
@@ -59,6 +60,7 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
       }
     }
 
+    update_pattern_size(textile);
     int ERROR = process(delta_time / (double)BILLION, textile);
     if (ERROR) {
       printf("ERROR IN: process\r\n");
@@ -80,28 +82,68 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
   }
 }
 
-// The needle will exicute the given stich command
-// on the location on hte patterns sequnce
-void sow(char *string, Pattern *pattern) {
+void sow(Textile *textile, char *stich, char *pattern_name) {
+  Pattern *pattern = get_pattern(textile, pattern_name);
+
+  if (!is_pattern_active(textile, pattern_name))
+    return;
+  if (pattern->needle.x > pattern->width)
+    return;
+
   switch (pattern->needle.stich) {
   case POINT:
-    SOW_WITH_CURSOR(sow_point, &pattern->needle, string, pattern->x,
-                    pattern->y);
+    SOW_WITH_CURSOR(sow_point, &pattern->needle, stich, pattern->x, pattern->y);
     break;
   case CHAR:
-    SOW_WITH_CURSOR(sow_char, &pattern->needle, string, pattern->x, pattern->y);
+    SOW_WITH_CURSOR(sow_char, &pattern->needle, stich, pattern->x, pattern->y);
     break;
   case WORD:
-    SOW_WITH_CURSOR(sow_word, &pattern->needle, string, pattern->x, pattern->y);
+    SOW_WITH_CURSOR(sow_word, &pattern->needle, stich, pattern->x, pattern->y);
     break;
   }
 }
 
+int is_pattern_active(Textile *textile, char *pattern_name) {
+  for (int i = 0; i < textile->active_pattern_length; i++) {
+    if (strcmp(textile->active_patterns[i], pattern_name) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+void update_pattern_pos(Textile *textile) {
+  for (int i = 0; i < textile->active_pattern_length; i++) {
+    Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
+    active_pattern->x = active_pattern->order * active_pattern->width;
+    active_pattern->y = 0;
+  }
+}
+
+void update_pattern_size(Textile *textile) {
+  if (textile->active_pattern_length < 1)
+    return;
+  WindowSize ws = get_window_size();
+  int pattern_width = ws.char_x / textile->active_pattern_length;
+  // int pattern_hight = ws.char_y / textile->active_pattern_length;
+  int pattern_hight = ws.char_y;
+
+  for (int i = 0; i < textile->active_pattern_length; i++) {
+    Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
+    active_pattern->width = pattern_width;
+    active_pattern->height = pattern_hight;
+  }
+}
+
 void register_pattern(Textile *textile, const char *name) {
+  WindowSize ws = get_window_size();
   Pattern pattern = {
       .needle = {1, 1, WORD}, // the terminal starts at 1,1 for some reason
+      .order = -1,
       .x = 0,
-      .y = 0};
+      .y = 0,
+      .width = ws.char_x,
+      .height = ws.char_y};
   strcpy(pattern.name, name);
   insert_value(&textile->pattern_map, pattern.name, pattern);
 }
@@ -111,8 +153,8 @@ Pattern *get_pattern(Textile *textile, char *name) {
   return pattern ? pattern : NULL;
 }
 
-// putes patterns together
-void stitch_to(Textile textile, char *pattern1_name, char *pattern2_name,
+/* patterns together
+void weave_to(Textile textile, char *pattern1_name, char *pattern2_name,
                Direction direction) {
 
   switch (direction) {
@@ -130,3 +172,4 @@ void stitch_to(Textile textile, char *pattern1_name, char *pattern2_name,
     break;
   }
 }
+*/

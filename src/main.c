@@ -5,11 +5,11 @@ int process(double delta_time, Textile *textile) {
 
   //  printf("DELTA TIME: %f\r\n", delta_time);
 
-  window_size ws = get_window_size();
+  WindowSize ws = get_window_size();
 
   char message[128];
-
-  Pattern *pattern = get_pattern(textile, "TEST PATTERN"); // can return null
+  char pattern_name[40] = "TEST PATTERN";
+  Pattern *pattern = get_pattern(textile, pattern_name); // can return null
 
   if (!pattern) {
     return 1;
@@ -17,19 +17,19 @@ int process(double delta_time, Textile *textile) {
   reset_needle(&pattern->needle);
 
   sprintf(message, "char x -> %d", ws.char_x);
-  sow(message, pattern);
+  sow(textile, message, pattern_name);
   return_needle(&pattern->needle);
 
   sprintf(message, "char y -> %d", ws.char_y);
-  sow(message, pattern);
+  sow(textile, message, pattern_name);
   return_needle(&pattern->needle);
 
   sprintf(message, "pixel x -> %d", ws.pixel_x);
-  sow(message, pattern);
+  sow(textile, message, pattern_name);
   return_needle(&pattern->needle);
 
   sprintf(message, "pixel y -> %d", ws.pixel_y);
-  sow(message, pattern);
+  sow(textile, message, pattern_name);
 
   return 0;
 }
