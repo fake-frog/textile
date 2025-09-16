@@ -31,7 +31,7 @@
 
 // Start renderloop
 void begin_textile(int (*process)(double, Textile *), Textile *textile) {
-  enable_raw_mode();
+  enable_raw_mode(); // side effect: switches to back buffer
   fflush(stdout);
   clear_screen();
 
@@ -85,7 +85,7 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
 void sow(Textile *textile, char *stich, char *pattern_name) {
   Pattern *pattern = get_pattern(textile, pattern_name);
 
-  if (!is_pattern_active(textile, pattern_name))
+  if (!pattern->is_active)
     return;
   if (pattern->needle.x > pattern->width)
     return;
@@ -103,17 +103,42 @@ void sow(Textile *textile, char *stich, char *pattern_name) {
   }
 }
 
-int is_pattern_active(Textile *textile, char *pattern_name) {
-  for (int i = 0; i < textile->active_pattern_length; i++) {
-    if (strcmp(textile->active_patterns[i], pattern_name) == 0) {
-      return 1;
+void set_pattern_active(Textile *textile, char *name) {
+  if (textile->active_pattern_count >= MAX_PATTERN_LENGTH)
+    return;
+  Pattern *pattern = get_pattern(textile, name);
+  if (!pattern)
+    return;
+  pattern->is_active = 1;
+  int index = textile->active_pattern_count++;
+  strcpy(textile->active_patterns[index], name);
+}
+
+void set_pattern_inactive(Textile *textile, char *name) {
+  int pattern_count = textile->active_pattern_count;
+  if (pattern_count < 1)
+    return;
+  Pattern *pattern = get_pattern(textile, name);
+  if (!pattern)
+    return;
+  pattern->is_active = 0;
+
+  int index = 0;
+  for (int i = 0; i < pattern_count; i++) {
+    if (strcmp(textile->active_patterns[i], name) == 0) {
+      index = i;
     }
   }
-  return 0;
+
+  for (int i = index; i < pattern_count - 1; i++) {
+    strcpy(textile->active_patterns[i], textile->active_patterns[i + 1]);
+  }
+  textile->active_pattern_count--;
+  textile->active_patterns[textile->active_pattern_count][0] = '\0';
 }
 
 void update_pattern_pos(Textile *textile) {
-  for (int i = 0; i < textile->active_pattern_length; i++) {
+  for (int i = 0; i < textile->active_pattern_count; i++) {
     Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
     active_pattern->x = active_pattern->order * active_pattern->width;
     active_pattern->y = 0;
@@ -121,14 +146,14 @@ void update_pattern_pos(Textile *textile) {
 }
 
 void update_pattern_size(Textile *textile) {
-  if (textile->active_pattern_length < 1)
+  if (textile->active_pattern_count < 1)
     return;
   WindowSize ws = get_window_size();
-  int pattern_width = ws.char_x / textile->active_pattern_length;
-  // int pattern_hight = ws.char_y / textile->active_pattern_length;
+  int pattern_width = ws.char_x / textile->active_pattern_count;
+  // int pattern_hight = ws.char_y / textile->active_pattern_count;
   int pattern_hight = ws.char_y;
 
-  for (int i = 0; i < textile->active_pattern_length; i++) {
+  for (int i = 0; i < textile->active_pattern_count; i++) {
     Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
     active_pattern->width = pattern_width;
     active_pattern->height = pattern_hight;
@@ -146,6 +171,10 @@ void register_pattern(Textile *textile, const char *name) {
       .height = ws.char_y};
   strcpy(pattern.name, name);
   insert_value(&textile->pattern_map, pattern.name, pattern);
+}
+
+void unregister_pattern(Textile *textile, const char *name) {
+  remove_value(&textile->pattern_map, name);
 }
 
 Pattern *get_pattern(Textile *textile, char *name) {

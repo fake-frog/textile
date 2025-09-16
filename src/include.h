@@ -44,6 +44,7 @@ typedef struct {
 // add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
+  int is_active;
   Needle needle;
   int order;
   int x;
@@ -62,17 +63,20 @@ int get_index(PatternMap map, const char *key);
 // returns 1 if you overflow
 int insert_value(PatternMap *map, const char *key, Pattern);
 Pattern *get_value(PatternMap *map, char *key);
+int remove_value(PatternMap *map, const char *key);
 
 typedef struct {
   PatternMap pattern_map;
-  char active_patterns[MAX_MAP_KEY_LENGTH][MAX_SEQUENCE_SIZE];
-  int active_pattern_length;
+  char active_patterns[MAX_PATTERN_LENGTH][MAX_MAP_KEY_SIZE];
+  int active_pattern_count;
 } Textile;
 
 void register_pattern(Textile *textile, const char *name);
+void unregister_pattern(Textile *textile, const char *name);
 void update_pattern_size(Textile *textile);
 Pattern *get_pattern(Textile *textile, char *name);
-int is_pattern_active(Textile *textile, char *pattern_name);
+void set_pattern_active(Textile *textile, char *name);
+void set_pattern_inactive(Textile *textile, char *name);
 void sow(Textile *textile, char *stich, char *pattern_name);
 
 /*

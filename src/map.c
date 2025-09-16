@@ -22,6 +22,19 @@ int insert_value(PatternMap *map, const char *key, Pattern pattern) {
   return 0;
 }
 
+int remove_value(PatternMap *map, const char *key) {
+  int index = get_index(*map, key);
+  if (index < 0)
+    return 1; /* not found */
+  for (int i = index; i < map->length - 1; i++) {
+    map->patterns[i] = map->patterns[i + 1];
+    strcpy(map->keys[i], map->keys[i + 1]);
+  }
+  map->length--;
+  map->keys[map->length][0] = '\0';
+  return 0;
+}
+
 Pattern *get_value(PatternMap *map, char *key) {
   int index = get_index(*map, key);
   return (index >= 0) ? &map->patterns[index] : NULL;

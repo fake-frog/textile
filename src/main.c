@@ -37,6 +37,12 @@ int process(double delta_time, Textile *textile) {
 int main() {
   Textile textile = {0};
   register_pattern(&textile, "TEST PATTERN");
+  register_pattern(&textile, "TEST PATTERN 2");
+  unregister_pattern(&textile, "TEST PATTERN 2");
+  set_pattern_active(&textile, "TEST PATTERN");
+  set_pattern_active(&textile, "TEST PATTERN 2");
+  set_pattern_inactive(&textile, "TEST PATTERN");
+  set_pattern_active(&textile, "TEST PATTERN");
   begin_textile(process, &textile);
   return 0;
 }
