@@ -1,37 +1,29 @@
 #include "include.h"
 
-// maybe we will append the sequence to the
-// pattern then printf to keep track of the
-// full sequence on screen?
+void cut_sequence(char *sequence, int end) {}
 
-// we will probably need to set the x and y
-// relative to the patterns position
+void go_to_buff_pos(Needle *needle, char *sequence_buff, int sequence_len) {
 
-void sow_point(Needle *needle, char *stich) { printf("%s", stich); }
+  int line_num = needle->y;
+  int i = 0;
+  while (line_num) {
+    if (i >= sequence_len)
+      break;
 
-void sow_char(Needle *needle, char *stich) {
-  printf("%s", stich);
-  needle->x++;
+    char c = sequence_buff[i];
+
+    if (c == '\n') {
+      line_num--;
+    }
+    needle->buff_pos++;
+  }
+
+  // if the x pos is > the line lenth, just go to the end of the line and return
+  for (int j = 0; j < needle->x && j < sequence_len; j++) {
+    char c = sequence_buff[i];
+    if (c == '\n')
+      return;
+
+    needle->buff_pos++;
+  }
 }
-
-void sow_word(Needle *needle, char *stich) {
-  printf("%s", stich);
-  needle->x += (strlen(stich) + 1);
-}
-
-void move_needle(Needle *needle, int x, int y) {
-  needle->x = x;
-  needle->y = y;
-}
-
-void return_needle(Needle *needle) {
-  needle->x = 1;
-  needle->y++;
-}
-
-void reset_needle(Needle *needle) {
-  needle->x = 1;
-  needle->y = 1;
-}
-
-void cut_stich(char *stich, int end) {}

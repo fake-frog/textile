@@ -25,9 +25,6 @@
 
 #include "include.h"
 #define FPS 60
-#define SOW_WITH_CURSOR(sow_func, needle, string, offset_x, offset_y)          \
-  (move_cursor((needle)->x + offset_x, (needle)->y + (offset_y)),              \
-   sow_func(needle, string))
 
 // Start renderloop
 void begin_textile(int (*process)(double, Textile *), Textile *textile) {
@@ -59,12 +56,11 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
         break;
       }
     }
-
-    update_pattern_size(textile);
     int ERROR = process(delta_time / (double)BILLION, textile);
     if (ERROR) {
       printf("ERROR IN: process\r\n");
     }
+    weave_patterns(textile);
     fflush(stdout); // see the output
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
@@ -82,89 +78,29 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
   }
 }
 
-void sow(Textile *textile, char *stich, char *pattern_name) {
-  Pattern *pattern = get_pattern(textile, pattern_name);
-
-  if (!pattern->is_active)
-    return;
-  if (pattern->needle.x > pattern->width)
-    return;
-
-  switch (pattern->needle.stich) {
-  case POINT:
-    SOW_WITH_CURSOR(sow_point, &pattern->needle, stich, pattern->x, pattern->y);
-    break;
-  case CHAR:
-    SOW_WITH_CURSOR(sow_char, &pattern->needle, stich, pattern->x, pattern->y);
-    break;
-  case WORD:
-    SOW_WITH_CURSOR(sow_word, &pattern->needle, stich, pattern->x, pattern->y);
-    break;
-  }
+void sow(Textile *textile, char *stich, const char *pattern_name) {
+  Pattern *p = get_pattern(textile, pattern_name);
+  const char test_s[100] = "Test sequence";
+  set_sequence_buffer(p->sequence, test_s, 100);
 }
 
-void set_pattern_active(Textile *textile, char *name) {
-  if (textile->active_pattern_count >= MAX_PATTERN_LENGTH)
-    return;
-  Pattern *pattern = get_pattern(textile, name);
-  if (!pattern)
-    return;
-  pattern->is_active = 1;
-  int index = textile->active_pattern_count++;
-  strcpy(textile->active_patterns[index], name);
-}
-
-void set_pattern_inactive(Textile *textile, char *name) {
-  int pattern_count = textile->active_pattern_count;
-  if (pattern_count < 1)
-    return;
-  Pattern *pattern = get_pattern(textile, name);
-  if (!pattern)
-    return;
-  pattern->is_active = 0;
-
-  int index = 0;
-  for (int i = 0; i < pattern_count; i++) {
-    if (strcmp(textile->active_patterns[i], name) == 0) {
-      index = i;
-    }
-  }
-
-  for (int i = index; i < pattern_count - 1; i++) {
-    strcpy(textile->active_patterns[i], textile->active_patterns[i + 1]);
-  }
-  textile->active_pattern_count--;
-  textile->active_patterns[textile->active_pattern_count][0] = '\0';
-}
-
-void update_pattern_pos(Textile *textile) {
-  for (int i = 0; i < textile->active_pattern_count; i++) {
-    Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
-    active_pattern->x = active_pattern->order * active_pattern->width;
-    active_pattern->y = 0;
-  }
-}
-
-void update_pattern_size(Textile *textile) {
-  if (textile->active_pattern_count < 1)
-    return;
-  WindowSize ws = get_window_size();
-  int pattern_width = ws.char_x / textile->active_pattern_count;
-  // int pattern_hight = ws.char_y / textile->active_pattern_count;
-  int pattern_hight = ws.char_y;
-
-  for (int i = 0; i < textile->active_pattern_count; i++) {
-    Pattern *active_pattern = get_pattern(textile, textile->active_patterns[i]);
-    active_pattern->width = pattern_width;
-    active_pattern->height = pattern_hight;
+// each pattern gets its own printf
+void weave_patterns(Textile *textile) {
+  for (int i = 0; i < textile->pattern_map.length; i++) {
+    Pattern *p = get_pattern(textile, textile->pattern_map.keys[i]);
+    if (!p)
+      continue;
+    printf("%s", p->sequence->buff);
   }
 }
 
 void register_pattern(Textile *textile, const char *name) {
   WindowSize ws = get_window_size();
+  Sequence *sequence = init_sequnce(MAX_SEQUENCE_SIZE);
   Pattern pattern = {
+      .sequence = sequence,
       .needle = {1, 1, WORD}, // the terminal starts at 1,1 for some reason
-      .order = -1,
+      .order = 0,
       .x = 0,
       .y = 0,
       .width = ws.char_x,
@@ -174,31 +110,21 @@ void register_pattern(Textile *textile, const char *name) {
 }
 
 void unregister_pattern(Textile *textile, const char *name) {
+  Pattern *p = get_pattern(textile, name);
+  remove_sequence(p->sequence);
   remove_value(&textile->pattern_map, name);
 }
 
-Pattern *get_pattern(Textile *textile, char *name) {
-  Pattern *pattern = get_value(&textile->pattern_map, name);
-  return pattern ? pattern : NULL;
+Pattern *get_pattern(Textile *textile, const char *name) {
+  Pattern *p = get_value(&textile->pattern_map, name);
+  return p ? p : NULL;
 }
 
-/* patterns together
-void weave_to(Textile textile, char *pattern1_name, char *pattern2_name,
-               Direction direction) {
-
-  switch (direction) {
-  case LEFT:
-    // Calc size for the new pattern slit and add to the left
-    break;
-  case RIGHT:
-    // add to right
-    break;
-  case UP:
-    // add to top
-    break;
-  case DOWN:
-    // add to bottom
-    break;
+void free_textile(Textile *textile) {
+  for (int i = 0; i < textile->pattern_map.length; i++) {
+    Pattern *p = get_pattern(textile, textile->pattern_map.keys[i]);
+    if (!p)
+      continue;
+    remove_sequence(p->sequence);
   }
 }
-*/

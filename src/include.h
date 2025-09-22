@@ -39,14 +39,28 @@ typedef struct {
   int x;
   int y;
   Stich stich;
+  int buff_pos;
 } Needle;
+
+typedef struct {
+  char *buff;
+  int buff_size;
+  int buff_length;
+  int line_count;
+  Needle needle;
+} Sequence;
+
+int get_sequence_buff_line_count(char *buff, int buff_len);
+Sequence *init_sequnce(int buff_size);
+void remove_sequence(Sequence *s);
+void set_sequence_buffer(Sequence *s, const char *buff, int buff_size);
 
 // add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
-  int is_active;
+  Sequence *sequence;
   Needle needle;
-  int order;
+  int order; // set by user - sets drawing order
   int x;
   int y;
   int width;
@@ -62,22 +76,21 @@ typedef struct {
 int get_index(PatternMap map, const char *key);
 // returns 1 if you overflow
 int insert_value(PatternMap *map, const char *key, Pattern);
-Pattern *get_value(PatternMap *map, char *key);
+Pattern *get_value(PatternMap *map, const char *key);
 int remove_value(PatternMap *map, const char *key);
 
 typedef struct {
   PatternMap pattern_map;
-  char active_patterns[MAX_PATTERN_LENGTH][MAX_MAP_KEY_SIZE];
-  int active_pattern_count;
 } Textile;
 
+void weave_patterns(Textile *textile);
 void register_pattern(Textile *textile, const char *name);
 void unregister_pattern(Textile *textile, const char *name);
-void update_pattern_size(Textile *textile);
-Pattern *get_pattern(Textile *textile, char *name);
-void set_pattern_active(Textile *textile, char *name);
-void set_pattern_inactive(Textile *textile, char *name);
-void sow(Textile *textile, char *stich, char *pattern_name);
+void free_textile(Textile *texile);
+Pattern *get_pattern(Textile *textile, const char *name);
+void set_pattern_active(Textile *textile, const char *name);
+void set_pattern_inactive(Textile *textile, const char *name);
+void sow(Textile *textile, char *stich, const char *pattern_name);
 
 /*
 ** ===============================
@@ -89,6 +102,10 @@ void sow(Textile *textile, char *stich, char *pattern_name);
 
 // sequence
 void reset_sequence(Pattern *pattern);
+int get_sequence_buff_line_count(char *buff, int buff_len);
+Sequence *init_sequnce(int buff_size);
+void remove_sequence(Sequence *s);
+void set_sequence_buffer(Sequence *s, const char *buff, int buff_size);
 
 // needle actions
 void sow_point(Needle *needle, char *stich);

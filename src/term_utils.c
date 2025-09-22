@@ -14,6 +14,7 @@ void switch_to_main_buffer() { printf("\033[?1049l"); }
 void clear_screen() { printf("\033[2J\033[H"); }
 
 void disable_raw_mode() {
+  printf("\x1b[?25h"); // show cursor
   switch_to_main_buffer();
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
@@ -22,6 +23,7 @@ void enable_raw_mode() {
   switch_to_back_buffer();
   tcgetattr(STDIN_FILENO, &orig_termios);
   atexit(disable_raw_mode);
+  printf("\x1b[?25l"); // hide cursor
 
   struct termios raw = orig_termios;
   raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);

@@ -35,7 +35,7 @@ int remove_value(PatternMap *map, const char *key) {
   return 0;
 }
 
-Pattern *get_value(PatternMap *map, char *key) {
+Pattern *get_value(PatternMap *map, const char *key) {
   int index = get_index(*map, key);
   return (index >= 0) ? &map->patterns[index] : NULL;
 }

@@ -1,5 +1,6 @@
 #include "src/main.c"
 #include "src/map.c"
 #include "src/needle.c"
+#include "src/sequence.c"
 #include "src/term_utils.c"
 #include "src/textile.c"
