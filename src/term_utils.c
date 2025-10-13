@@ -19,6 +19,12 @@ void disable_raw_mode() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
 
+void non_blocking_input() {
+  // make the input nonblocking
+  int flags = fcntl(STDIN_FILENO, F_GETFL);
+  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+}
+
 void enable_raw_mode() {
   switch_to_back_buffer();
   tcgetattr(STDIN_FILENO, &orig_termios);

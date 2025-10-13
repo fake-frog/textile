@@ -15,6 +15,7 @@
 #define MAX_MAP_KEY_LENGTH 1024
 #define MAX_MAP_KEY_SIZE 100
 
+#define MAX_LINE_LENGTH 2048
 /*
 ** ===============================
 **
@@ -26,43 +27,24 @@
 // stitch were place characters
 // its where we begin writing and
 // how we proceed.
-typedef enum {
-  POINT,
-  CHAR,
-  WORD,
-} Stich;
-
-typedef enum { HIDE, BREAK_WORD, BREAK_CHAR } Overflow;
-typedef enum { LEFT, RIGHT, UP, DOWN } Direction;
-
-typedef struct {
-  int x;
-  int y;
-  Stich stich;
-  int buff_pos;
-} Needle;
+//
 
 typedef struct {
   char *buff;
   int buff_size;
   int buff_length;
   int line_count;
-  Needle needle;
+  int line_length[MAX_LINE_LENGTH];
 } Sequence;
 
 int get_sequence_buff_line_count(char *buff, int buff_len);
-Sequence *init_sequnce(int buff_size);
 void remove_sequence(Sequence *s);
 void set_sequence_buffer(Sequence *s, const char *buff, int buff_size);
+void append_to_sequence_buffer(Sequence *s, const char *string);
 
-// add wrapping modes
 typedef struct {
   char name[MAX_MAP_KEY_SIZE];
   Sequence *sequence;
-  Needle needle;
-  int order; // set by user - sets drawing order
-  int x;
-  int y;
   int width;
   int height;
 } Pattern;
@@ -73,6 +55,7 @@ typedef struct {
   int length;
 } PatternMap;
 
+// pattern map
 int get_index(PatternMap map, const char *key);
 // returns 1 if you overflow
 int insert_value(PatternMap *map, const char *key, Pattern);
@@ -81,16 +64,25 @@ int remove_value(PatternMap *map, const char *key);
 
 typedef struct {
   PatternMap pattern_map;
+  char *surface;
+  int width;
+  int height;
 } Textile;
 
-void weave_patterns(Textile *textile);
+Textile *init_textile();
+
+void set_surface_at(Textile *textile, int x, int y);
+void set_surface_between(Textile *textile, int x1, int y1, int x2, int y2);
+void print_surface(Textile *textile);
+void clear_surface(Textile *textile, int width, int height);
+void weave_at(Textile *textile, Pattern *pattern, int x, int y);
 void register_pattern(Textile *textile, const char *name);
 void unregister_pattern(Textile *textile, const char *name);
 void free_textile(Textile *texile);
 Pattern *get_pattern(Textile *textile, const char *name);
 void set_pattern_active(Textile *textile, const char *name);
-void set_pattern_inactive(Textile *textile, const char *name);
-void sow(Textile *textile, char *stich, const char *pattern_name);
+void sow(Textile *textile, const char *pattern_name,
+         void (*stich)(Pattern *, const char *), char *string);
 
 /*
 ** ===============================
@@ -100,20 +92,17 @@ void sow(Textile *textile, char *stich, const char *pattern_name);
 ** ===============================
 */
 
+// string utils
+char *blank_buffer(int width, int height);
+
 // sequence
 void reset_sequence(Pattern *pattern);
 int get_sequence_buff_line_count(char *buff, int buff_len);
-Sequence *init_sequnce(int buff_size);
+char *truncate_lines(char *buff, int width, int height);
+Sequence *init_sequnce(int width, int height);
 void remove_sequence(Sequence *s);
 void set_sequence_buffer(Sequence *s, const char *buff, int buff_size);
 
-// needle actions
-void sow_point(Needle *needle, char *stich);
-void sow_char(Needle *needle, char *stich);
-void sow_word(Needle *needle, char *stich);
-void move_needle(Needle *needle, int x, int y);
-void return_needle(Needle *needle);
-void reset_needle(Needle *needle);
 // term utils
 
 typedef struct {
@@ -127,8 +116,10 @@ void move_cursor(int x, int y);
 void clear_screen();
 void disable_raw_mode();
 void enable_raw_mode();
+void non_blocking_input();
 void switch_to_back_buffer();
-void begin_textile(int (*process)(double, Textile *), Textile *textile);
+void begin_textile(int (*process)(double, Textile *), Textile *textile,
+                   int fps);
 void switch_to_main_buffer();
 WindowSize get_window_size();
 

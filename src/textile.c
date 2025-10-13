@@ -24,23 +24,21 @@
 */
 
 #include "include.h"
-#define FPS 60
 
 // Start renderloop
-void begin_textile(int (*process)(double, Textile *), Textile *textile) {
-  enable_raw_mode(); // side effect: switches to back buffer
+void begin_textile(int (*process)(double, Textile *), Textile *textile,
+                   int fps) {
+
+  enable_raw_mode();
   fflush(stdout);
   clear_screen();
 
-  // make the input nonblocking
-  int flags = fcntl(STDIN_FILENO, F_GETFL);
-  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
-
+  non_blocking_input();
   long BILLION = 1000000000L;
 
-  long nano_target_frame_time = (long)(1.0 / FPS * BILLION); // nano seconds
+  long nano_target_frame_time = (long)(1.0 / fps * BILLION); // nano seconds
   struct timespec tstart, tend, tsleep;
-  tsleep.tv_sec = 0; // we dont use this
+  tsleep.tv_sec = 0;
   long delta_time = 0;
 
   char c;
@@ -51,17 +49,17 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
 
     if (bytes_read == 1) {
       if (c == 'q') {
-        // printf("Quitting...\r\n");
-        //  TODO - handle exit
         break;
       }
     }
+
     int ERROR = process(delta_time / (double)BILLION, textile);
     if (ERROR) {
-      printf("ERROR IN: process\r\n");
+      printf("ERROR IN: process\n\r");
     }
-    weave_patterns(textile);
-    fflush(stdout); // see the output
+
+    print_surface(textile);
+    fflush(stdout);
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
 
@@ -71,46 +69,47 @@ void begin_textile(int (*process)(double, Textile *), Textile *textile) {
 
     if (delta_time < nano_target_frame_time) {
       tsleep.tv_nsec = nano_target_frame_time - delta_time;
-      delta_time = nano_target_frame_time; // trust the sleep time
+      delta_time = nano_target_frame_time;
     }
 
     nanosleep(&tsleep, NULL);
   }
 }
 
-void sow(Textile *textile, char *stich, const char *pattern_name) {
-  Pattern *p = get_pattern(textile, pattern_name);
-  const char test_s[100] = "Test sequence";
-  set_sequence_buffer(p->sequence, test_s, 100);
+void sow(Textile *textile, const char *pattern_name,
+         void (*stich)(Pattern *, const char *), char *string) {
+
+  Pattern *pattern = get_pattern(textile, pattern_name);
+  if (!pattern)
+    return;
+
+  stich(pattern, string);
+  weave_at(textile, pattern, 1, 1);
 }
 
-// each pattern gets its own printf
-void weave_patterns(Textile *textile) {
-  for (int i = 0; i < textile->pattern_map.length; i++) {
-    Pattern *p = get_pattern(textile, textile->pattern_map.keys[i]);
-    if (!p)
-      continue;
-    printf("%s", p->sequence->buff);
-  }
+void weave_at(Textile *textile, Pattern *pattern, int x, int y) {
+  sprintf(textile->surface, "%s", pattern->sequence->buff);
+}
+
+void print_surface(Textile *textile) { printf("%s", textile->surface); }
+
+void clear_surface(Textile *textile, int width, int height) {
+  textile->surface = blank_buffer(width, height);
 }
 
 void register_pattern(Textile *textile, const char *name) {
   WindowSize ws = get_window_size();
-  Sequence *sequence = init_sequnce(MAX_SEQUENCE_SIZE);
+  Sequence *sequence = init_sequnce(ws.char_x, ws.char_y);
   Pattern pattern = {
-      .sequence = sequence,
-      .needle = {1, 1, WORD}, // the terminal starts at 1,1 for some reason
-      .order = 0,
-      .x = 0,
-      .y = 0,
-      .width = ws.char_x,
-      .height = ws.char_y};
+      .sequence = sequence, .width = ws.char_x, .height = ws.char_y};
   strcpy(pattern.name, name);
   insert_value(&textile->pattern_map, pattern.name, pattern);
 }
 
 void unregister_pattern(Textile *textile, const char *name) {
   Pattern *p = get_pattern(textile, name);
+  if (!p)
+    return;
   remove_sequence(p->sequence);
   remove_value(&textile->pattern_map, name);
 }
@@ -120,6 +119,18 @@ Pattern *get_pattern(Textile *textile, const char *name) {
   return p ? p : NULL;
 }
 
+void set_surface_at(Textile *textile, int x, int y) {}
+void set_surface_between(Textile *textile, int x1, int y1, int x2, int y2) {}
+
+Textile *init_textile() {
+  Textile *t = malloc(sizeof(Textile));
+  if (!t)
+    return NULL;
+  WindowSize ws = get_window_size();
+  char *s = blank_buffer(ws.char_x, ws.char_y);
+  return t;
+}
+
 void free_textile(Textile *textile) {
   for (int i = 0; i < textile->pattern_map.length; i++) {
     Pattern *p = get_pattern(textile, textile->pattern_map.keys[i]);
@@ -127,4 +138,5 @@ void free_textile(Textile *textile) {
       continue;
     remove_sequence(p->sequence);
   }
+  free(textile->surface);
 }
